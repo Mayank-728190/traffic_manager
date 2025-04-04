@@ -1,0 +1,10 @@
+Flask
+gunicorn
+opencv-python
+torch
+ultralytics
+numpy
+librosa
+tensorflow
+moviepy
+werkzeug
