@@ -1,10 +1,10 @@
 Flask
-gunicorn
-opencv-python
+Flask-CORS
 torch
 ultralytics
-numpy
-librosa
 tensorflow
 moviepy
-werkzeug
+librosa
+numpy
+opencv-python
+gunicorn  # Required for production deployment
