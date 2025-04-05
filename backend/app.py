@@ -9,18 +9,20 @@ from ultralytics import YOLO
 from werkzeug.utils import secure_filename
 import moviepy.editor as mp
 
-# Initialize Flask
+# Initialize Flask app
 app = Flask(__name__)
 
-# Load Models
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
-yolo_model = YOLO("models/best.pt")  # Ensure best.pt is in models/
-audio_model = load_model("models/ambulance_siren_model.h5")  # Siren model
-
-# Audio Processing Parameters
-SAMPLE_RATE = 22050
+# Set upload folder
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+# Load models
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
+yolo_model = YOLO("models/best.pt")  # Ensure this path is correct in Render
+audio_model = load_model("models/ambulance_siren_model.h5")
+
+# Constants
+SAMPLE_RATE = 22050
 
 @app.route("/", methods=["GET"])
 def home():
@@ -38,7 +40,7 @@ def detect():
 
     cap = cv2.VideoCapture(filepath)
     detections = []
-    
+
     while cap.isOpened():
         ret, frame = cap.read()
         if not ret:
@@ -57,12 +59,13 @@ def detect():
                     detections.append({"x1": x1, "y1": y1, "x2": x2, "y2": y2, "confidence": confidence})
 
         if detected:
-            siren_detected = verify_siren(filepath)
-            if siren_detected:
+            if verify_siren(filepath):
+                cap.release()
                 return jsonify({"status": "Emergency Ambulance Detected", "detections": detections})
-    
+
     cap.release()
     return jsonify({"status": "No active emergency ambulance detected", "detections": detections})
+
 
 def verify_siren(video_path):
     """Extracts audio and checks for siren sound."""
@@ -70,6 +73,7 @@ def verify_siren(video_path):
     if temp_audio_path:
         return classify_audio(temp_audio_path)
     return False
+
 
 def extract_audio(video_path):
     """Extracts a short audio segment from the video."""
@@ -81,6 +85,7 @@ def extract_audio(video_path):
     except Exception as e:
         print(f"Audio extraction failed: {e}")
         return None
+
 
 def classify_audio(audio_path):
     """Classifies whether the extracted audio contains an ambulance siren."""
@@ -96,5 +101,6 @@ def classify_audio(audio_path):
         print(f"Audio processing error: {e}")
         return False
 
-if __name__ == "__main__":
-    app.run(debug=True)
+
+# ❗️DO NOT include `app.run()` for Render (Gunicorn handles it)
+# Leave this part out so gunicorn can load `app` correctly
