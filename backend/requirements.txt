@@ -3,7 +3,7 @@ torch
 torchvision
 torchaudio
 ultralytics
-opencv-python
+opencv-python-headless
 pillow
 numpy
 librosa
