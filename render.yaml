@@ -2,13 +2,11 @@ services:
   - name: backend
     type: web
     env: python
-    buildCommand: |
-      pip install -r requirements.txt
-      pip install -r backend/requirements.txt
+    buildCommand: pip install -r requirements.txt
     startCommand: gunicorn backend.app:app
     envVars:
       - key: PORT
-        value: 8000  # Render automatically assigns a port, this is just a fallback
+        value: 8000
 
   - name: frontend
     type: web
@@ -17,4 +15,4 @@ services:
     startCommand: streamlit run frontend/app.py --server.port 8501 --server.address 0.0.0.0
     envVars:
       - key: PORT
-        value: 8501  # Render will replace this dynamically
+        value: 8501
